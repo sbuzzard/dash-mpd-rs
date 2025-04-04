@@ -521,31 +521,6 @@ where S: serde::Serializer {
     }
 }
 
-
-// These default_* functions are needed to provide defaults for serde deserialization of certain
-// elements, where the Default function for that type doesn't return a value compatible with the
-// default specified in the XSD specification.
-fn default_optstring_on_request() -> Option<String> {
-    Some("onRequest".to_string())
-}
-
-fn default_optstring_one() -> Option<String> {
-    Some(String::from("1"))
-}
-
-fn default_optstring_encoder() -> Option<String> {
-    Some(String::from("encoder"))
-}
-
-fn default_optbool_false() -> Option<bool> {
-    Some(false)
-}
-
-fn default_optu64_zero() -> Option<u64> {
-    Some(0)
-}
-
-
 // The MPD format is documented by ISO using an XML Schema at
 // https://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD-edition2.xsd
 // Historical spec: https://ptabdata.blob.core.windows.net/files/2020/IPR2020-01688/v67_EXHIBIT%201067%20-%20ISO-IEC%2023009-1%202019(E)%20-%20Info.%20Tech.%20-%20Dynamic%20Adaptive%20Streaming%20Over%20HTTP%20(DASH).pdf
@@ -882,7 +857,7 @@ pub struct SegmentList {
     /// A "remote resource", following the XML Linking Language (XLink) specification.
     #[serde(rename = "@xlink:href", alias = "@href")]
     pub href: Option<String>,
-    #[serde(rename = "@xlink:actuate", alias = "@actuate", default="default_optstring_on_request")]
+    #[serde(rename = "@xlink:actuate", alias = "@actuate")]
     pub actuate: Option<String>,
     #[serde(rename = "@xlink:type", alias = "@type")]
     pub sltype: Option<String>,
@@ -942,7 +917,7 @@ pub struct Language {
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(default)]
 pub struct Preselection {
-    #[serde(rename = "@id", default = "default_optstring_one")]
+    #[serde(rename = "@id")]
     pub id: Option<String>,
     /// Specifies the ids of the contained elements/content components of this Preselection list as
     /// white space separated list in processing order. The first id defines the main element.
@@ -1211,7 +1186,7 @@ pub struct Representation {
     pub numChannels: Option<u32>,
     #[serde(rename = "@xlink:href", alias = "@href")]
     pub href: Option<String>,
-    #[serde(rename = "@xlink:actuate", alias = "@actuate", default = "default_optstring_on_request")]
+    #[serde(rename = "@xlink:actuate", alias = "@actuate")]
     pub actuate: Option<String>,
     #[serde(rename = "@scte214:supplementalProfiles", alias = "@supplementalProfiles")]
     pub scte214_supplemental_profiles: Option<String>,
@@ -1445,7 +1420,7 @@ pub struct SelectionInfo {
 pub struct Event {
     #[serde(rename = "@id")]
     pub id: Option<String>,
-    #[serde(rename = "@presentationTime", default = "default_optu64_zero")]
+    #[serde(rename = "@presentationTime")]
     pub presentationTime: Option<u64>,
     #[serde(rename = "@presentationTimeOffset")]
     pub presentationTimeOffset: Option<u64>,
@@ -1487,7 +1462,7 @@ pub struct EventStream {
     #[serde(rename = "@xlink:href")]
     #[serde(alias = "@href")]
     pub href: Option<String>,
-    #[serde(rename = "@xlink:actuate", alias = "@actuate", default = "default_optstring_on_request")]
+    #[serde(rename = "@xlink:actuate", alias = "@actuate")]
     pub actuate: Option<String>,
     #[serde(rename = "@messageData")]
     // actually an xs:anyURI
@@ -1586,7 +1561,7 @@ pub struct AdaptationSet {
     /// A "remote resource", following the XML Linking Language (XLink) specification.
     #[serde(rename = "@xlink:href", alias = "@href")]
     pub href: Option<String>,
-    #[serde(rename = "@xlink:actuate", alias = "@actuate", default = "default_optstring_on_request")]
+    #[serde(rename = "@xlink:actuate", alias = "@actuate")]
     pub actuate: Option<String>,
     #[serde(rename = "@group")]
     pub group: Option<i64>,
@@ -1737,7 +1712,7 @@ pub struct Period {
     #[serde(rename = "@xlink:href", alias = "@href")]
     pub href: Option<String>,
 
-    #[serde(rename = "@xlink:actuate", alias = "@actuate", default="default_optstring_on_request")]
+    #[serde(rename = "@xlink:actuate", alias = "@actuate")]
     pub actuate: Option<String>,
 
     #[serde(rename = "@id")]
@@ -1906,12 +1881,12 @@ pub struct ProducerReferenceTime {
     // This attribute is required according to the specification XSD.
     #[serde(rename = "@id")]
     pub id: Option<String>,
-    #[serde(rename = "@inband", default = "default_optbool_false")]
+    #[serde(rename = "@inband")]
     pub inband: Option<bool>,
     // This attribute is required according to the specification XSD.
     #[serde(rename = "@presentationTime")]
     pub presentationTime: Option<u64>,
-    #[serde(rename = "@type", default = "default_optstring_encoder")]
+    #[serde(rename = "@type")]
     pub prtType: Option<String>,
     // There are two capitalizations for this attribute in the specification at
     // https://dashif.org/docs/CR-Low-Latency-Live-r8.pdf. The attribute is required according to
