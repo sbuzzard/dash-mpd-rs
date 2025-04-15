@@ -1313,7 +1313,7 @@ pub struct OutputProtection {
 /// If this node is not present, no content protection (such as Widevine and Playready) is applied
 /// by the source.
 #[skip_serializing_none]
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Hash)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(default)]
 pub struct ContentProtection {
     /// The robustness level required for this content protection scheme.
@@ -1354,6 +1354,90 @@ pub struct ContentProtection {
     pub mspr_iv_size: Option<MsprIVSize>,
     #[serde(rename = "mspr:kid", alias = "kid")]
     pub mspr_kid: Option<MsprKid>,
+    #[serde(rename = "sea:SegmentEncryption", alias = "SegmentEncryption")]
+    pub segment_encryption: Option<SegmentEncryption>,
+    #[serde(rename = "sea:License", alias = "License")]
+    pub licenses: Vec<ContentProtectionLicense>,
+    #[serde(rename = "sea:CryptoPeriod", alias = "CryptoPeriod")]
+    pub crypto_periods: Vec<CryptoPeriod>,
+    #[serde(rename = "sea:CryptoTimeline", alias = "CryptoTimeline")]
+    pub crypto_timelines: Vec<CryptoTimeline>,
+}
+
+/// The SegmentEncryption provides the scheme by which the segment is encrypted within
+/// ContentProtection
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(default)]
+pub struct SegmentEncryption {
+    #[serde(rename = "@schemeIdUri")]
+    pub scheme_id_url: String,
+    #[serde(rename = "@keyLength")]
+    pub key_length: Option<u32>,
+    #[serde(rename = "@ivLength")]
+    pub iv_length: Option<u32>,
+    #[serde(rename = "@authTagLength")]
+    pub auth_tag_length: Option<u32>,
+    #[serde(rename = "@earlyAvailability", serialize_with="serialize_opt_xsd_double")]
+    pub early_availability: Option<f64>,
+    #[serde(rename = "@ivEncryptionFlag")]
+    pub iv_encryption_flag: Option<bool>,
+}
+
+/// The ContentProtectionLicense ("License") describes the global properties of a key system used
+/// in all crypto periods
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Hash)]
+#[serde(default)]
+pub struct ContentProtectionLicense {
+    #[serde(rename = "@keySystemUri")]
+    pub key_system_uri: String,
+
+    #[serde(rename = "@keyLicenseUrlTemplate")]
+    pub key_license_url_template: Option<String>,
+}
+
+/// The CryptoPeriod provides the IV and key template indicating the cryptographic period to assist
+/// in its parent ContentProtection
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Hash)]
+#[serde(default)]
+pub struct CryptoPeriod {
+    #[serde(rename = "@numSegments")]
+    pub num_segments: Option<u64>,
+
+    #[serde(rename = "@keyUriTemplate")]
+    pub key_uri_template: String,
+
+    #[serde(rename = "@ivUriTemplate")]
+    pub iv_uri_template: Option<String>,
+
+    #[serde(rename = "@startOffset")]
+    pub start_offset: Option<u64>,
+
+    #[serde(rename = "@IV")]
+    pub iv: Option<String>,
+
+    #[serde(rename = "@aad")]
+    pub aad: Option<String>,
+}
+
+/// The CryptoTimeline is used for derivation of multiple CryptoPeriods of constant length
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Hash)]
+#[serde(default)]
+pub struct CryptoTimeline {
+    #[serde(rename = "@numCryptoPeriods")]
+    pub num_crypto_periods: Option<u64>,
+
+    #[serde(rename = "@firstStartOffset")]
+    pub first_start_offset: Option<u64>,
+
+    #[serde(rename = "@ivBase")]
+    pub iv_base: Option<String>,
+
+    #[serde(rename = "@aadBase")]
+    pub aad_base: Option<String>,
 }
 
 /// The Role specifies the purpose of this media stream (caption, subtitle, main content, etc.).
@@ -1622,6 +1706,8 @@ pub struct AdaptationSet {
     pub maxHeight: Option<u64>,
     #[serde(rename = "@frameRate")]
     pub frameRate: Option<String>, // it can be something like "15/2"
+    #[serde(rename = "@minFrameRate")]
+    pub minFrameRate: Option<String>, // it can be something like "15/2"
     #[serde(rename = "@maxFrameRate")]
     pub maxFrameRate: Option<String>, // it can be something like "15/2"
     /// Indicates the possibility for accelerated playout allowed by this codec profile and level.
